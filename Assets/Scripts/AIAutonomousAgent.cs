@@ -40,7 +40,7 @@ public class AIAutonomousAgent : AIAgent
 			}
 		}
 
-		transform.position = Utilities.Wrap(transform.position, new Vector3(-10, -10, -10), new Vector3(10, 10, 10));
+		//transform.position = Utilities.Wrap(transform.position, new Vector3(-55, -12, -53), new Vector3(55, 25, 53));
     }
 
 	#region seek / flee

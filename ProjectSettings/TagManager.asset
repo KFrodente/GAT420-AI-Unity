@@ -7,6 +7,9 @@ TagManager:
   - Agent01
   - Agent02
   - Agent03
+  - Sphere
+  - Box
+  - Agent05
   layers:
   - Default
   - TransparentFX
