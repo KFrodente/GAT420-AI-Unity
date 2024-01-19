@@ -25,15 +25,10 @@ public class AIKinematicMovement : AIMovement
         //
     }
 
-    private void Update()
-    {
-        
-    }
-
     void LateUpdate()
     {
         Velocity += Acceleration * Time.deltaTime;
-        Velocity = Vector3.ClampMagnitude(Velocity, maxForce);
+        Velocity = Vector3.ClampMagnitude(Velocity, maxSpeed);
         //Velocity = Velocity.ClampMagnitude(minSpeed, maxSpeed);
         transform.position += Velocity * Time.deltaTime;
 

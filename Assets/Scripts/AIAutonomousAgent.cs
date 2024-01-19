@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class AIAutonomousAgent : AIAgent
 {
-    public AIPerception seekPerception = null;
-    public AIPerception fleePerception = null;
-    public AIPerception flockPerception = null;
-	public float flockSepRadius;
+    [SerializeField] private AIPerception seekPerception = null;
+    [SerializeField] private AIPerception fleePerception = null;
+    [SerializeField] private AIPerception flockPerception = null;
+    [SerializeField] private AIPerception obstaclePerception = null;
+
     private void Update()
     {
 
@@ -36,9 +37,29 @@ public class AIAutonomousAgent : AIAgent
 			{
 				movement.ApplyForce(Cohesion(gameObjects));
 				movement.ApplyForce(Alignment(gameObjects));
-				movement.ApplyForce(Separation(gameObjects, flockSepRadius));
+				movement.ApplyForce(Separation(gameObjects, 3));
 			}
 		}
+
+		if (obstaclePerception != null)
+		{
+			//if (((AISphereCastPerception)obstaclePerception).CheckDirection(Vector3.forward))
+			//{
+			//	Vector3 open = Vector3.zero;
+			//	if (((AISphereCastPerception)obstaclePerception).GetOpenDirection(ref open))
+			//	{
+			//		movement.ApplyForce(GetSteeringForce(open) * 5);
+			//	}
+			//}
+            if (((AIRaycastPerception)obstaclePerception).CheckDirection(Vector3.forward))
+            {
+                Vector3 open = Vector3.zero;
+                if (((AIRaycastPerception)obstaclePerception).GetOpenDirection(ref open))
+                {
+                    movement.ApplyForce(GetSteeringForce(open) * 5);
+                }
+            }
+        }
 
 		//transform.position = Utilities.Wrap(transform.position, new Vector3(-55, -12, -53), new Vector3(55, 25, 53));
     }
