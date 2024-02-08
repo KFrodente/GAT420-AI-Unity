@@ -3,77 +3,70 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class AISphereCastPerception : AIPerception
+public class AISphereCastPerception1 : AIPerception
 {
-	[SerializeField, Range(2, 100)] private int numRaycast = 2;
-	[SerializeField, Range(0.1f, 5)] private float radius;
-
-    private void OnDrawGizmos()
+    [SerializeField] private float radius = 0.5f;
+    [SerializeField] private int rayCount = 2;
+    public override GameObject[] GetGameObjects()
     {
+        List<GameObject> result = new List<GameObject>();
 
-        Vector3[] directions = Utilities.GetDirectionsInCircle(numRaycast, maxAngle);
-		foreach (Vector3 direction in directions)
-		{
-			Ray ray = new Ray(transform.position, transform.rotation * direction);
-			Gizmos.color = Color.yellow;
-			Gizmos.DrawWireSphere(ray.origin + ray.direction * distance, radius);
-		}
+        Vector3[] directions = Utilities.GetDirectionsInCircle(rayCount, maxAngle);
+        foreach (Vector3 direction in directions)
+        {
+            Ray ray = new Ray(transform.position, transform.rotation * direction);
+            if (Physics.SphereCast(ray, radius, out RaycastHit hitInfo, distance))
+            {
+                Debug.DrawRay(ray.origin, ray.direction * hitInfo.distance, Color.red);
+                if (hitInfo.collider.gameObject == gameObject) continue;
+                if (tagName == "" || hitInfo.collider.CompareTag(tagName))
+                {
+                    result.Add(hitInfo.collider.gameObject);
+                }
+            }
+            else Debug.DrawRay(ray.origin, ray.direction * distance, Color.green);
+        }
+        result = result.Distinct().ToList();
+        return result.ToArray();
+    }
+    public bool GetOpenDirection(ref Vector3 openDirection)
+    {
+        Vector3[] directions = Utilities.GetDirectionsInCircle(rayCount, maxAngle);
+        foreach (var direction in directions)
+        {
+            // cast ray from transform position towards direction (use game object orientation)
+            Ray ray = new Ray(transform.position, transform.rotation * direction);
+            // if there is NO raycast hit then that is an open direction
+            if (!Physics.SphereCast(ray, radius, out RaycastHit raycastHit, distance, layerMask))
+            {
+                Debug.DrawRay(ray.origin, ray.direction * distance, Color.green);
+                // set open direction
+                openDirection = ray.direction;
+                return true;
+            }
+        }
+
+        // no open direction
+        return false;
     }
 
-    public override GameObject[] GetGameObjects()
-	{
-		List<GameObject> result = new List<GameObject>();
+    public bool CheckDirection(Vector3 direction)
+    {
+        // create ray in direction (use game object orientation)
+        Ray ray = new Ray(transform.position, transform.rotation * direction);
+        // check ray cast
+        return Physics.SphereCast(ray, radius, distance, layerMask);
 
-		Vector3[] directions = Utilities.GetDirectionsInCircle(numRaycast, maxAngle);
-		foreach (Vector3 direction in directions)
-		{
-			Ray ray = new Ray(transform.position, transform.rotation * direction);
-			if (Physics.SphereCast(ray, radius, out RaycastHit raycastHit, distance, layerMask))
-			{
-				//Debug.DrawRay(ray.origin, ray.direction * raycastHit.distance, Color.red);
-				// check if collision is self, skip if so
-				if (raycastHit.collider.gameObject == gameObject) continue;
-				if (tagName == "" || raycastHit.collider.CompareTag(tagName))
-				{
-					result.Add(raycastHit.collider.gameObject);
-				}
-			}
-			else
-			{
-				//Debug.DrawRay(ray.origin, ray.direction * distance, Color.green);
-			}
-		}
-		result = result.Distinct().ToList();
-		return result.ToArray();
-	}
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Vector3[] directions = Utilities.GetDirectionsInCircle(rayCount, maxAngle);
+        foreach (Vector3 direction in directions)
+        {
+            Ray ray = new Ray(transform.position, transform.rotation * direction);
+            Gizmos.DrawWireSphere(ray.origin + ray.direction * distance, radius);
+        }
 
-	public bool GetOpenDirection(ref Vector3 openDirection)
-	{
-		Vector3[] directions = Utilities.GetDirectionsInCircle(numRaycast, maxAngle);
-		foreach (var direction in directions)
-		{
-			// cast ray from transform position towards direction (use game object orientation)
-			Ray ray = new Ray(transform.position, transform.rotation * direction);
-			// if there is NO raycast hit then that is an open direction
-			if (!Physics.SphereCast(ray, radius, out RaycastHit raycastHit, distance, layerMask))
-			{
-				Debug.DrawRay(ray.origin, ray.direction * distance, Color.green);
-				// set open direction
-				openDirection = ray.direction;
-				return true;
-			}
-		}
-
-		// no open direction
-		return false;
-	}
-
-	public bool CheckDirection(Vector3 direction)
-	{
-		// create ray in direction (use game object orientation)
-		Ray ray = new Ray(transform.position, transform.rotation * direction);
-		// check ray cast
-		return Physics.SphereCast(ray, distance, layerMask);
-
-	}
+    }
 }

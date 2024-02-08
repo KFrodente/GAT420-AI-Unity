@@ -19,8 +19,8 @@ TagManager:
   - UI
   - Spawn
   - World
-  - 
-  - 
+  - NavNode
+  - NavAgent
   - 
   - 
   - 
